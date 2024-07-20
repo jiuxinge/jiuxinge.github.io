@@ -1,5 +1,6 @@
 # Tofu Studios 3
 **[Tofu Studios 3](https://jiuxinge.github.io/)**：A team of developers dedicated to the migration of the total integration package and the direct installation of the integration package.
+
 **豆腐工作室3.0**：一个致力于做整合包移植整合包直装的全能工作室。
 
 ## Tofu Studios 3 Team
