@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 Not Found</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
     <style>
         body, html {
             height: 100%;
@@ -65,13 +66,29 @@
         .return-button:active {
             transform: translateY(2px);
         }
+        #animationContainer {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <div class="error-code">404</div>
+        <div id="animationContainer"></div>
+        <script>
+          var animationContainer = document.getElementById('animationContainer');
+          var animationData = {
+            container: animationContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://redstone2337.github.io/API/404.json' // 替换为你的Lottie动画文件路径
+          };
+            var animation = lottie.loadAnimation(animationData);
+        </script>
         <p>Oops! The page you are looking for does not exist.</p>
-        <a href="/" class="return-button">Return to Home</a>
+        <a href="index.html" class="return-button">Return to Home</a>
     </div>
 </body>
 </html>
