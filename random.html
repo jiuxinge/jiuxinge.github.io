@@ -22,66 +22,60 @@
         h1 {
             text-align: center;
         }
-        #uuids {
+        .input-group {
             margin-top: 20px;
+            display: flex;
+            gap: 10px;
         }
-        .uuid-container {
-            margin-bottom: 10px;
-        }
-        #hitokoto {
-            margin-top: 20px;
+        input, button {
             padding: 10px;
+            font-size: 16px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
         }
         button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
             background-color: #007bff;
             color: white;
+            cursor: pointer;
+            border: none;
         }
         button:hover {
             background-color: #0056b3;
         }
-        .copy-button {
-            margin-left: 10px;
+        /* 新增的样式 */
+        .combined {
+            display: flex;
+            flex-direction: column;
+        }
+        .combined input {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>唯一标识符生成器与随机一言获取器</h1>
-        <div>
-            <button onclick="generateUUIDs()">生成三个UUID</button>
-            <div id="uuids">
-                <!-- UUIDs will be inserted here -->
-            </div>
-        </div>
-        <div>
+        <div class="combined"> <!-- 新增一个段落包含所有内容 -->
+            <button onclick="generateUUID()">生成UUID</button>
+            <button onclick="copyToClipboard('uuid-display')">复制</button>
+            <input type="text" id="uuid-display" readonly>
+            
             <button onclick="getHitokoto()">获取随机一言</button>
-            <button class="copy-button" onclick="copyToClipboard('hitokoto')">复制</button>
-            <div id="hitokoto" class="hitokoto-container"></div>
+            <button onclick="copyToClipboard('hitokoto-text')">复制</button>
+            <input type="text" id="hitokoto-text" readonly>
+            
+            <div id="hitokoto-details" class="hitokoto-details"></div>
         </div>
     </div>
 
     <script>
-        function generateUUIDs() {
-            const uuidsContainer = document.getElementById('uuids');
-            uuidsContainer.innerHTML = ''; // Clear previous UUIDs
-            for (let i = 0; i < 3; i++) {
-                const uuid = crypto.randomUUID();
-                const uuidDiv = document.createElement('div');
-                uuidDiv.className = 'uuid-container';
-                uuidDiv.innerHTML = `
-                    <p>UUID: ${uuid}</p>
-                    <button class="copy-button" onclick="copyToClipboard(this)">复制</button>
-                `;
-                uuidsContainer.appendChild(uuidDiv);
+        async function generateUUID() {
+            try {
+                const response = await fetch('https://www.uuidgenerator.net/api/version4');
+                const uuid = await response.text();
+                document.getElementById('uuid-display').value = uuid;
+            } catch (error) {
+                console.error('生成UUID时出错:', error);
             }
         }
 
@@ -89,9 +83,8 @@
             fetch('https://v1.hitokoto.cn/')
                 .then(response => response.json())
                 .then(data => {
-                    const hitokotoElement = document.getElementById('hitokoto');
-                    hitokotoElement.innerHTML = `
-                        <p>一言: ${data.hitokoto}</p>
+                    document.getElementById('hitokoto-text').value = '一言：' + data.hitokoto;
+                    document.getElementById('hitokoto-details').innerHTML = `
                         <p>来源: ${data.from}</p>
                         <p>作者: ${data.from_who}</p>
                         <p>创建者: ${data.creator}</p>
@@ -103,34 +96,29 @@
                 .catch(error => console.error('Error fetching hitokoto:', error));
         }
 
-        function copyToClipboard(element) {
-            if (element.tagName === 'BUTTON') {
-                const uuidDiv = element.parentNode;
-                const textToCopy = uuidDiv.querySelector('p').textContent;
-                copyTextToClipboard(textToCopy);
-            } else if (element.id === 'hitokoto') {
-                const textToCopy = document.getElementById('hitokoto').innerText;
-                copyTextToClipboard(textToCopy);
-            }
-        }
-
-        function copyTextToClipboard(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    alert('已复制到剪贴板');
-                } else {
-                    alert('复制失败');
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const textarea = document.createElement('textarea');
+                textarea.value = element.value;
+                textarea.style.position = 'fixed';  // 防止出现滚动条
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        alert('已复制到剪贴板');
+                    } else {
+                        alert('复制失败');
+                    }
+                } catch (err) {
+                    console.error('无法复制', err);
                 }
-            } catch (err) {
-                console.error('无法复制', err);
+                document.body.removeChild(textarea);
+            } else {
+                console.error('无法找到元素');
             }
-            document.body.removeChild(textArea);
         }
     </script>
 </body>
